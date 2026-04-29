@@ -52,6 +52,7 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.koin.android)
     implementation(libs.koin.compose)
+    implementation(libs.napier)
 
     testImplementation(libs.junit)
 
