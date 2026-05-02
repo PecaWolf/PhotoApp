@@ -35,5 +35,6 @@ val dataModule = module {
         get<Retrofit>().create(PhotoApi::class.java)
     }
 
+    singleOf(::PhotoRepositoryImpl) bind PhotoRepository::class
     singleOf(::ExampleRepositoryImpl) bind ExampleRepository::class
 }
