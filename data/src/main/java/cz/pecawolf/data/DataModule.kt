@@ -28,6 +28,7 @@ val dataModule = module {
         Retrofit.Builder()
             .baseUrl("https://api.flickr.com/services/feeds/")
             .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
+            .client(get())
             .build()
     }
 
