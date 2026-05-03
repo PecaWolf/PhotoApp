@@ -9,5 +9,5 @@ data class PhotoItem(
     val published: String,
     val author: String,
     val authorId: String,
-    val tags: String,
+    val tags: List<String>,
 )

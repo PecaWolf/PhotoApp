@@ -15,7 +15,8 @@ data object Screens {
 fun NavGraph(navController: NavController) {
     NavHost(navController as NavHostController, startDestination = Screens.Home) {
         composable(Screens.Home) {
-            HomeRoute()
+            HomeRoute(
+            )
         }
     }
 }

@@ -1,4 +1,4 @@
-package cz.pecawolf.photoapp.ui.theme
+package cz.pecawolf.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 

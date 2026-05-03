@@ -35,5 +35,5 @@ internal fun PhotoItemDto.toDomain() = PhotoItem(
     published = published,
     author = author,
     authorId = authorId,
-    tags = tags,
+    tags = tags.split(" ").filter { it.isNotBlank() },
 )
