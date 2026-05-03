@@ -22,6 +22,9 @@ kotlinxSerializationJson = "1.11.0"
 retrofitKotlinxSerialization = "1.0.0"
 okhttp = "5.3.2"
 coilCompose = "3.4.0"
+kotlinx-datetime = "0.7.1"
+composeContraintCore = "2.2.1"
+composeConstraintCompose = "1.1.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -39,6 +42,8 @@ androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-
 androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-compose-navigation = { group = "androidx.navigation", name = "navigation-compose", version.ref = "composeNavigation" }
+androidx-compose-constraint-core = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "composeContraintCore" }
+androidx-compose-constraint-compose = { group = "androidx.constraintlayout", name = "constraintlayout-compose", version.ref = "composeConstraintCompose" }
 androidx-navigation-runtime-ktx = { group = "androidx.navigation", name = "navigation-runtime-ktx", version.ref = "navigationRuntimeKtx" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 androidx-compose-material-icons = { module = "androidx.compose.material:material-icons-extended", version.ref = "composeIcons" }
@@ -55,6 +60,7 @@ okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 okhttp-logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "okhttp" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
 coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coilCompose" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

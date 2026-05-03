@@ -1,7 +1,7 @@
 package cz.pecawolf.domain.repository
 
-import cz.pecawolf.domain.model.PhotoItem
+import cz.pecawolf.domain.model.PhotoFeed
 
 interface PhotoRepository {
-    suspend fun getPhotos(): Result<List<PhotoItem>>
+    suspend fun getPhotoFeed(): Result<PhotoFeed>
 }

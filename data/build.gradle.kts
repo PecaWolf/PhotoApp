@@ -50,6 +50,7 @@ dependencies {
     implementation(libs.retrofit.kotlinx.serialization)
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging.interceptor)
+    implementation(libs.kotlinx.datetime)
 
     testImplementation(libs.junit)
 
