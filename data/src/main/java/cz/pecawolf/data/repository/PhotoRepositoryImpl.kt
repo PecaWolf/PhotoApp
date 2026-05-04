@@ -8,8 +8,25 @@ import cz.pecawolf.domain.repository.PhotoRepository
 class PhotoRepositoryImpl(
     private val photoApi: PhotoApi,
 ) : PhotoRepository {
-    override suspend fun getPhotoFeed(): Result<PhotoFeed> = runCatching {
-        photoApi.getPhotos().toDomain()
+    override suspend fun getPhotoFeed(
+        tags: List<String>,
+        matchAllTags: Boolean,
+    ): Result<PhotoFeed> = runCatching {
+        if (tags.isNotEmpty()) {
+            photoApi.getPhotos(
+                tags = tags.joinToString(","),
+                tagMode = if (matchAllTags) {
+                    "all"
+                } else {
+                    "any"
+                }
+            )
+        } else {
+            photoApi.getPhotos(
+                tags = null,
+                tagMode = null,
+            )
+        }.toDomain()
     }
 }
 

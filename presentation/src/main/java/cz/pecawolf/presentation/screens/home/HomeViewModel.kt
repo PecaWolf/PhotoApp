@@ -7,12 +7,16 @@ import cz.pecawolf.domain.model.PhotoItem
 import cz.pecawolf.domain.usecase.FetchPhotoFeedUseCase
 import cz.pecawolf.presentation.formatDateTimeBySystemLocale
 import io.github.aakira.napier.Napier
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.seconds
 
 class HomeViewModel(
     private val fetchPhotoFeed: FetchPhotoFeedUseCase,
@@ -20,6 +24,8 @@ class HomeViewModel(
 
     private val _effect = Channel<Effect>()
     private val _uiState = MutableStateFlow(UiState())
+
+    private var debounceJob: Job? = null
 
     val effect = _effect.receiveAsFlow()
     val uiState: StateFlow<UiState> = _uiState
@@ -63,35 +69,55 @@ class HomeViewModel(
 
     private fun handleSearchQueryChange(query: String) {
         Napier.d { "handleOnSearchQueryChange(): $query" }
-        _uiState.update {
+        val newState = _uiState.updateAndGet {
             it.copy(searchQuery = query)
         }
+        handleSearchParametersChange(newState)
     }
 
     private fun handleDeleteTagClick(tag: String) {
         Napier.d { "handleDeleteTagClick(): $tag" }
-        _uiState.update {
+        val newState = _uiState.updateAndGet {
             it.copy(
                 searchQuery = it.searchTags.filter { it != tag }.joinToString(" "),
             )
         }
+        handleSearchParametersChange(newState)
     }
 
     private fun handleAllTagsChange(isChecked: Boolean) {
         Napier.d { "handleAllTagsToggle(): $isChecked" }
-        _uiState.update {
+        val newState = _uiState.updateAndGet {
             it.copy(
                 matchAllTags = isChecked,
             )
         }
+        handleSearchParametersChange(newState)
     }
 
-    private fun loadPhotos() {
+    private fun handleSearchParametersChange(newState: UiState) {
+        debounceJob?.cancel()
+        debounceJob = viewModelScope.launch {
+            delay(1.seconds)
+            loadPhotos(
+                tags = newState.searchTags,
+                matchAllTags = newState.matchAllTags,
+            )
+        }
+    }
+
+    private fun loadPhotos(
+        tags: List<String> = emptyList(),
+        matchAllTags: Boolean = true,
+    ) {
         _uiState.update {
             it.copy(loading = true)
         }
         viewModelScope.launch {
-            fetchPhotoFeed()
+            fetchPhotoFeed(
+                tags = tags,
+                matchAllTags = matchAllTags,
+            )
                 .fold(
                     onSuccess = { onFetchPhotoFeedSuccess(it) },
                     onFailure = { onFetchPhotoFeedFailure(it) },
