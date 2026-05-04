@@ -1,4 +1,14 @@
 <resources>
     <string name="general_back_button">Back</string>
     <string name="general_close">Close</string>
+    <string name="home_search_placeholder">Search</string>
+    <string name="home_search_content_description">Search</string>
+    <string name="home_clear_search_content_description">Clear search</string>
+    <string name="home_match_all_tags">All</string>
+    <string name="home_match_any_tag">Any</string>
+    <string name="fullscreen_no_image_selected">No image selected</string>
+    <string name="fullscreen_reset_photo_button_content_description">Reset photo button</string>
+    <string name="photo_card_open_full_content_description">Open in full</string>
+    <string name="photo_card_no_tags_message">The Author has not entered any tags</string>
+    <string name="photo_card_more_tags">and %d more</string>
 </resources>

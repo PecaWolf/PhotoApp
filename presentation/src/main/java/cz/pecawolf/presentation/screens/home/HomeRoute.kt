@@ -49,6 +49,8 @@ import cz.pecawolf.presentation.components.PaTextField
 import cz.pecawolf.presentation.components.PaTopAppBar
 import cz.pecawolf.presentation.components.PhotoCard
 import cz.pecawolf.presentation.components.painter
+import cz.pecawolf.presentation.components.string
+import cz.pecawolf.presentation.R
 import cz.pecawolf.presentation.screens.home.HomeViewModel.UiState
 import cz.pecawolf.presentation.screens.home.HomeViewModel.Event
 import cz.pecawolf.presentation.screens.home.HomeViewModel.Effect
@@ -185,12 +187,12 @@ private fun Toolbar(
                     .weight(1f),
                 value = uiState.searchQuery,
                 onValueChange = { onEvent(Event.OnSearchQueryChange(it)) },
-                placeholder = "Search",
+                placeholder = R.string.home_search_placeholder.string(),
                 imeAction = ImeAction.Search,
                 leadingIcon = {
                     PaIconButtonTertiary(
                         painter = Icons.Default.Search.painter(),
-                        contentDescription = "Search",
+                        contentDescription = R.string.home_search_content_description.string(),
                         onClick = {},
                     )
                 },
@@ -201,7 +203,7 @@ private fun Toolbar(
                         PaIconButtonTertiary(
                             painter = Icons.Default.Close.painter(),
                             onClick = { onEvent(Event.OnSearchQueryChange("")) },
-                            contentDescription = "Clear search",
+                            contentDescription = R.string.home_clear_search_content_description.string(),
                         )
                     }
                 },
@@ -209,8 +211,8 @@ private fun Toolbar(
 
             PaSwitchButton(
                 modifier = Modifier.wrapContentSize(),
-                textChecked = "All",
-                textUnchecked = "Any",
+                textChecked = R.string.home_match_all_tags.string(),
+                textUnchecked = R.string.home_match_any_tag.string(),
                 checked = uiState.matchAllTags,
                 onCheckedChange = { onEvent(Event.OnAllTagsChange(it)) },
             )

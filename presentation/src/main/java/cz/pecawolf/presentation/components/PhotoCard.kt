@@ -42,6 +42,7 @@ import androidx.constraintlayout.compose.Dimension
 import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter
 import cz.pecawolf.domain.model.PhotoItem
+import cz.pecawolf.presentation.R
 import cz.pecawolf.presentation.theme.PhotoAppTheme
 import io.github.aakira.napier.Napier
 
@@ -176,7 +177,7 @@ fun PhotoContent(
                         .wrapContentSize(),
                     painter = Icons.Default.OpenInFull.painter(),
                     onClick = onFullScreenClick,
-                    contentDescription = "Open in full",
+                    contentDescription = R.string.photo_card_open_full_content_description.string(),
                 )
             }
         }
@@ -201,8 +202,8 @@ fun PhotoContent(
         )
         AnimatedContent(targetState = photo.tags.size) {
             when (it) {
-                0 -> Text("The Author has not entered any tags")
-                in 1..maxTags ->
+                0 -> Text(R.string.photo_card_no_tags_message.string())
+                in 1..maxTags + 1 ->
                     FlowRow(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(Dimensions.spaceSmall),
@@ -248,7 +249,7 @@ fun PhotoContent(
                                 overflow = TextOverflow.Ellipsis,
                             )
                         }
-                    Text("and ${photo.tags.size - maxTags} more")
+                    Text(R.string.photo_card_more_tags.string(photo.tags.size - maxTags))
                 }
             }
         }

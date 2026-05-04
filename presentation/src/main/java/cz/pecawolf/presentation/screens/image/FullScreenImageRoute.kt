@@ -23,6 +23,8 @@ import cz.pecawolf.presentation.components.PaBackIconButton
 import cz.pecawolf.presentation.components.PaIconButtonPrimary
 import cz.pecawolf.presentation.components.ZoomableImage
 import cz.pecawolf.presentation.components.painter
+import cz.pecawolf.presentation.components.string
+import cz.pecawolf.presentation.R
 import cz.pecawolf.presentation.screens.image.FullScreenImageViewModel.UiState
 import cz.pecawolf.presentation.screens.image.FullScreenImageViewModel.Effect
 import cz.pecawolf.presentation.screens.image.FullScreenImageViewModel.Event
@@ -80,7 +82,7 @@ private fun FullScreenImageScreen(
                     )
 
                     "" -> Text(
-                        text = "No image selected",
+                        text = R.string.fullscreen_no_image_selected.string(),
                     )
 
                     else -> ZoomableImage(
@@ -111,7 +113,7 @@ private fun FullScreenImageScreen(
                         .padding(all = Dimensions.spaceSmall),
                     painter = Icons.Default.Refresh.painter(),
                     onClick = { onEvent(Event.ResetImage) },
-                    contentDescription = "Reset photo button",
+                    contentDescription = R.string.fullscreen_reset_photo_button_content_description.string(),
                 )
             }
         }
