@@ -16,6 +16,8 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.launch
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import kotlin.time.Duration.Companion.seconds
 
 class HomeViewModel(
@@ -43,20 +45,24 @@ class HomeViewModel(
             is Event.OnSearchQueryChange -> handleSearchQueryChange(event.query)
             is Event.OnDeleteTagClick -> handleDeleteTagClick(event.tag)
             is Event.OnAllTagsChange -> handleAllTagsChange(event.isChecked)
+            is Event.PhotoDetailDismiss -> handlePhotoDetailDismiss()
         }
     }
 
     private fun handleItemClick(photo: PhotoItem) {
         Napier.d { "handleItemClick(): $photo" }
-        viewModelScope.launch {
-            _effect.send(Effect.NavigateToItemDetail(photo))
+        _uiState.update {
+            it.copy(
+                displayedDetail = photo,
+            )
         }
     }
 
     private fun handleFullScreenClick(photo: PhotoItem) {
-        Napier.d { "handleFullScreenClick(): $photo" }
+        Napier.d { "handleFullScreenClick(): ${photo.imageUrl}" }
         viewModelScope.launch {
-            _effect.send(Effect.NavigateToItemFullScreen(photo))
+            val encodedUrl = URLEncoder.encode(photo.imageUrl, StandardCharsets.UTF_8.toString())
+            _effect.send(Effect.NavigateToItemFullScreen(encodedUrl))
         }
     }
 
@@ -121,6 +127,15 @@ class HomeViewModel(
         }
     }
 
+    private fun handlePhotoDetailDismiss() {
+        Napier.d { "handlePhotoDetailDismiss()" }
+        _uiState.update {
+            it.copy(
+                displayedDetail = null,
+            )
+        }
+    }
+
     private fun loadPhotos(
         tags: List<String> = emptyList(),
         matchAllTags: Boolean = true,
@@ -174,6 +189,7 @@ class HomeViewModel(
         val searchQuery: String = "",
         val searchExpanded: Boolean = false,
         val matchAllTags: Boolean = true,
+        val displayedDetail: PhotoItem? = null,
     ) {
         val searchTags: List<String>
             get() = searchQuery
@@ -189,10 +205,10 @@ class HomeViewModel(
         data class OnSearchQueryChange(val query: String) : Event
         data class OnDeleteTagClick(val tag: String) : Event
         class OnAllTagsChange(val isChecked: Boolean) : Event
+        data object PhotoDetailDismiss : Event
     }
 
     sealed interface Effect {
-        data class NavigateToItemDetail(val photo: PhotoItem) : Effect
-        data class NavigateToItemFullScreen(val photo: PhotoItem) : Effect
+        data class NavigateToItemFullScreen(val imageUrl: String) : Effect
     }
 }

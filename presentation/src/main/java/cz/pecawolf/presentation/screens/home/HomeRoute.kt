@@ -51,6 +51,7 @@ import cz.pecawolf.presentation.components.PhotoCard
 import cz.pecawolf.presentation.components.painter
 import cz.pecawolf.presentation.screens.home.HomeViewModel.UiState
 import cz.pecawolf.presentation.screens.home.HomeViewModel.Event
+import cz.pecawolf.presentation.screens.home.HomeViewModel.Effect
 import cz.pecawolf.presentation.theme.PhotoAppTheme
 import org.koin.androidx.compose.koinViewModel
 
@@ -59,18 +60,16 @@ private const val MAX_DESCRIPTION_LINES_DISPLAYED_PER_ITEM = 5
 
 @Composable
 fun HomeRoute(
-    onNavigateToItemFullScreen: (PhotoItem) -> Unit,
+    onNavigateToItemFullScreen: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val viewModel: HomeViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsState()
-    var displayedDetail: PhotoItem? by remember { mutableStateOf(null) }
 
     LaunchedEffect(viewModel.effect) {
         viewModel.effect.collect {
             when (it) {
-                is HomeViewModel.Effect.NavigateToItemDetail -> displayedDetail = it.photo
-                is HomeViewModel.Effect.NavigateToItemFullScreen -> onNavigateToItemFullScreen(it.photo)
+                is Effect.NavigateToItemFullScreen -> onNavigateToItemFullScreen(it.imageUrl)
             }
         }
     }
@@ -82,8 +81,8 @@ fun HomeRoute(
     )
 
     PhotoDetailBottomSheet(
-        item = displayedDetail,
-        onDismissRequest = { displayedDetail = null },
+        item = uiState.displayedDetail,
+        onDismissRequest = { viewModel.onEvent(Event.PhotoDetailDismiss) },
         onFullScreenClick = { viewModel.onEvent(Event.PhotoFullScreenClick(it)) },
     )
 }
