@@ -3,7 +3,7 @@ package cz.pecawolf.photoapp
 import android.app.Application
 import cz.pecawolf.data.dataModule
 import cz.pecawolf.domain.domainModule
-import cz.pecawolf.presentation.presentationModule
+import cz.pecawolf.presentation.di.presentationModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.GlobalContext.startKoin
 import io.github.aakira.napier.DebugAntilog

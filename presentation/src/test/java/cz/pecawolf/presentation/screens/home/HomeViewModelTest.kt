@@ -4,6 +4,8 @@ import cz.pecawolf.domain.model.PhotoFeed
 import cz.pecawolf.domain.model.PhotoItem
 import cz.pecawolf.domain.usecase.EncodeUrlUseCase
 import cz.pecawolf.domain.usecase.FetchPhotoFeedUseCase
+import cz.pecawolf.presentation.model.PhotoModel
+import cz.pecawolf.presentation.viewmodel.HomeViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -82,7 +84,7 @@ class HomeViewModelTest {
         val state = viewModel.uiState.value
         assertFalse(state.loading)
         assertEquals("Test Title", state.title)
-        assertEquals(feed.items, state.photos)
+        assertEquals(listOf(createPhotoModel()), state.photos)
         assertNull(state.error)
     }
 
@@ -116,7 +118,7 @@ class HomeViewModelTest {
 
     @Test
     fun `photo click updates displayed detail`() {
-        val photo = createPhotoItem()
+        val photo = createPhotoModel()
         viewModel.onEvent(HomeViewModel.Event.PhotoClick(photo))
 
         assertEquals(photo, viewModel.uiState.value.displayedDetail)
@@ -124,7 +126,7 @@ class HomeViewModelTest {
 
     @Test
     fun `photo full screen click sends navigation effect`() = runTest(testDispatcher) {
-        val photo = createPhotoItem(imageUrl = "https://example.com/photo.jpg")
+        val photo = createPhotoModel(imageUrl = "https://example.com/photo.jpg")
         val effects = mutableListOf<HomeViewModel.Effect>()
 
         val job = launch(testDispatcher) {
@@ -220,7 +222,7 @@ class HomeViewModelTest {
 
     @Test
     fun `photo detail dismiss clears displayed detail`() {
-        val photo = createPhotoItem()
+        val photo = createPhotoModel()
         viewModel.onEvent(HomeViewModel.Event.PhotoClick(photo))
         assertNotNull(viewModel.uiState.value.displayedDetail)
 
@@ -291,6 +293,21 @@ class HomeViewModelTest {
         title: String = "Photo",
         imageUrl: String = "https://example.com/photo.jpg",
     ) = PhotoItem(
+        title = title,
+        link = "https://example.com/link",
+        imageUrl = imageUrl,
+        dateTaken = "2024-01-01",
+        description = "desc",
+        published = "2024-01-01",
+        author = "author",
+        authorId = "id",
+        tags = emptyList(),
+    )
+
+    private fun createPhotoModel(
+        title: String = "Photo",
+        imageUrl: String = "https://example.com/photo.jpg",
+    ) = PhotoModel(
         title = title,
         link = "https://example.com/link",
         imageUrl = imageUrl,

@@ -28,6 +28,7 @@ kotlinx-coroutines-test = "1.10.2"
 mockito-kotlin = "5.4.0"
 composeContraintCore = "2.2.1"
 composeConstraintCompose = "1.1.1"
+uiGeometry = "1.11.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -66,6 +67,7 @@ coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines-test" }
 mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockito-kotlin" }
+androidx-compose-ui-geometry = { group = "androidx.compose.ui", name = "ui-geometry", version.ref = "uiGeometry" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -1,8 +1,8 @@
 package cz.pecawolf.presentation.screens.image
 
-import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.SavedStateHandle
-import cz.pecawolf.presentation.components.ZOOM_DEFAULT
+import cz.pecawolf.presentation.viewmodel.FullScreenImageViewModel
+import cz.pecawolf.presentation.viewmodel.ZOOM_DEFAULT
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -52,7 +52,8 @@ class FullScreenImageViewModelTest {
         val viewModel = createViewModel()
         val state = viewModel.uiState.value
 
-        assertEquals(Offset.Zero, state.pan)
+        assertEquals(0f, state.panX)
+        assertEquals(0f, state.panY)
         assertEquals(ZOOM_DEFAULT, state.zoom)
         assertEquals(0f, state.rotation)
     }
@@ -91,20 +92,23 @@ class FullScreenImageViewModelTest {
         whenever(mockSavedStateHandle.get<String>("imageUrl")).thenReturn(null)
 
         val viewModel = createViewModel()
-        val newPan = Offset(100f, 200f)
+        val newPanX = 100f
+        val newPanY = 200f
         val newZoom = 2.5f
         val newRotation = 45f
 
         viewModel.onEvent(
             FullScreenImageViewModel.Event.ImageStateChange(
-                pan = newPan,
+                panX = newPanX,
+                panY = newPanY,
                 zoom = newZoom,
                 rotation = newRotation
             )
         )
 
         val state = viewModel.uiState.value
-        assertEquals(newPan, state.pan)
+        assertEquals(newPanX, state.panX)
+        assertEquals(newPanY, state.panY)
         assertEquals(newZoom, state.zoom)
         assertEquals(newRotation, state.rotation)
     }
@@ -117,7 +121,8 @@ class FullScreenImageViewModelTest {
 
         viewModel.onEvent(
             FullScreenImageViewModel.Event.ImageStateChange(
-                pan = Offset(10f, 10f),
+                panX = 10f,
+                panY = 10f,
                 zoom = ZOOM_DEFAULT,
                 rotation = 0f
             )
@@ -134,7 +139,8 @@ class FullScreenImageViewModelTest {
 
         viewModel.onEvent(
             FullScreenImageViewModel.Event.ImageStateChange(
-                pan = Offset(100f, 200f),
+                panX = 100f,
+                panY = 200f,
                 zoom = 3f,
                 rotation = 90f
             )
@@ -143,7 +149,8 @@ class FullScreenImageViewModelTest {
         viewModel.onEvent(FullScreenImageViewModel.Event.ResetImage)
 
         val state = viewModel.uiState.value
-        assertEquals(Offset.Zero, state.pan)
+        assertEquals(0f, state.panX)
+        assertEquals(0f, state.panY)
         assertEquals(ZOOM_DEFAULT, state.zoom)
         assertEquals(0f, state.rotation)
     }
@@ -156,7 +163,8 @@ class FullScreenImageViewModelTest {
 
         viewModel.onEvent(
             FullScreenImageViewModel.Event.ImageStateChange(
-                pan = Offset(10f, 10f),
+                panX = 10f,
+                panY = 10f,
                 zoom = 2f,
                 rotation = 0f
             )
@@ -176,7 +184,8 @@ class FullScreenImageViewModelTest {
 
         viewModel.onEvent(
             FullScreenImageViewModel.Event.ImageStateChange(
-                pan = Offset.Zero,
+                panX = 0f,
+                panY = 0f,
                 zoom = ZOOM_DEFAULT + 0.5f,
                 rotation = 0f
             )
@@ -193,7 +202,8 @@ class FullScreenImageViewModelTest {
 
         viewModel.onEvent(
             FullScreenImageViewModel.Event.ImageStateChange(
-                pan = Offset.Zero,
+                panX = 0f,
+                panY = 0f,
                 zoom = ZOOM_DEFAULT,
                 rotation = 15f
             )
