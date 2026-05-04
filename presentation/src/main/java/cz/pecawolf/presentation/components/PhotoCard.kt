@@ -16,6 +16,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ImageNotSupported
 import androidx.compose.material.icons.filled.OpenInFull
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -38,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import coil3.compose.AsyncImage
+import coil3.compose.AsyncImagePainter
 import cz.pecawolf.domain.model.PhotoItem
 import cz.pecawolf.presentation.theme.PhotoAppTheme
 import io.github.aakira.napier.Napier
@@ -45,154 +48,167 @@ import io.github.aakira.napier.Napier
 @Composable
 fun PhotoCard(
     photo: PhotoItem,
-    onClick: () -> Unit,
-    onFullScreenClick: () -> Unit,
+    onClick: (() -> Unit)?,
+    onFullScreenClick: (() -> Unit)?,
     modifier: Modifier = Modifier,
     isLoading: Boolean = true,
     hasError: Boolean = false,
     maxTags: Int = Int.MAX_VALUE,
+    maxDescriptionLines: Int = Int.MAX_VALUE,
+    colors: CardColors = CardDefaults.cardColors(
+        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+        disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+    ),
 ) {
     var _loading: Boolean by remember { mutableStateOf(isLoading) }
     var _error: Boolean by remember { mutableStateOf(hasError) }
 
     Card(
         modifier = modifier,
-        onClick = onClick,
+        onClick = { onClick?.invoke() },
+        enabled = !_loading && !_error,
+        colors = colors,
     ) {
-        Column(
-            modifier = Modifier.padding(Dimensions.spaceSmall),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(Dimensions.spaceSmall),
-        ) {
-            ConstraintLayout(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(1f)
-                    .clip(MaterialTheme.shapes.medium)
-                    .background(MaterialTheme.colorScheme.surfaceContainer),
-            ) {
-                val (imageRef, fullScreenButttonRef, loadingRef, errorRef) = createRefs()
+        PhotoContent(
+            isLoading = _loading,
+            hasError = _error,
+            photo = photo,
+            onFullScreenClick = onFullScreenClick,
+            maxDescriptionLines = maxDescriptionLines,
+            maxTags = maxTags,
+            onLoadImageSuccess = {
+                Napier.d { "onSuccess(): ${photo.title}" }
+                _loading = false
+                _error = false
+            },
+            onLoadImageError = {
+                Napier.w(it.result.throwable) { "onError(): ${photo.title}, " }
+                _loading = false
+                _error = true
+            },
+            onLoadImage = {
+                Napier.v { "onLoading(): ${photo.title}" }
+                _loading = true
+                _error = false
+            },
+        )
+    }
+}
 
-                if (_loading) CircularProgressIndicator(
-                    modifier = Modifier
-                        .constrainAs(loadingRef) {
-                            top.linkTo(parent.top)
-                            bottom.linkTo(parent.bottom)
-                            start.linkTo(parent.start)
-                            end.linkTo(parent.end)
-                        }
-                        .fillMaxSize(0.5f),
-                    strokeWidth = 8.dp,
-                )
-                if (_error) Image(
-                    modifier = Modifier
-                        .constrainAs(errorRef) {
-                            top.linkTo(parent.top)
-                            bottom.linkTo(parent.bottom)
-                            start.linkTo(parent.start)
-                            end.linkTo(parent.end)
-                        }
-                        .alpha(0.33f)
-                        .fillMaxSize(0.5f),
-                    painter = Icons.Default.ImageNotSupported.painter(),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                )
-                AsyncImage(
-                    modifier = Modifier.constrainAs(imageRef) {
-                        width = Dimension.fillToConstraints
-                        height = Dimension.fillToConstraints
+@Composable
+fun PhotoContent(
+    isLoading: Boolean,
+    hasError: Boolean,
+    photo: PhotoItem,
+    onFullScreenClick: (() -> Unit)?,
+    maxDescriptionLines: Int = Int.MAX_VALUE,
+    maxTags: Int = Int.MAX_VALUE,
+    onLoadImageSuccess: (AsyncImagePainter.State.Success) -> Unit,
+    onLoadImageError: (AsyncImagePainter.State.Error) -> Unit,
+    onLoadImage: (AsyncImagePainter.State.Loading) -> Unit,
+) {
+    Column(
+        modifier = Modifier.padding(Dimensions.spaceSmall),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(Dimensions.spaceSmall),
+    ) {
+        ConstraintLayout(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(1f)
+                .clip(MaterialTheme.shapes.medium)
+                .background(MaterialTheme.colorScheme.surfaceContainer),
+        ) {
+            val (imageRef, fullScreenButttonRef, loadingRef, errorRef) = createRefs()
+
+            if (isLoading) CircularProgressIndicator(
+                modifier = Modifier
+                    .constrainAs(loadingRef) {
                         top.linkTo(parent.top)
                         bottom.linkTo(parent.bottom)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
-                    },
-                    model = photo.imageUrl,
-                    contentDescription = "${photo.title} - ${photo.description}",
-                    contentScale = ContentScale.Crop,
-                    onSuccess = {
-                        Napier.d { "onSuccess(): ${photo.title}" }
-                        _loading = false
-                        _error = false
-                    },
-                    onError = {
-                        Napier.w(it.result.throwable) { "onError(): ${photo.title}, " }
-                        _loading = false
-                        _error = true
-                    },
-                    onLoading = {
-                        Napier.v { "onLoading(): ${photo.title}" }
-                        _loading = true
-                        _error = false
-                    },
-                )
-                if (!_loading && !_error) {
-                    PaIconButtonPrimary(
-                        modifier = Modifier
-                            .constrainAs(fullScreenButttonRef) {
-                                height = Dimension.value(Dimensions.buttonMinSize)
-                                width = Dimension.value(Dimensions.buttonMinSize)
-                                bottom.linkTo(parent.bottom, margin = Dimensions.spaceSmall)
-                                end.linkTo(parent.end, margin = Dimensions.spaceSmall)
-                            }
-                            .wrapContentSize(),
-                        painter = Icons.Default.OpenInFull.painter(),
-                        onClick = onFullScreenClick,
-                        contentDescription = "Open in full",
-                    )
-                }
-            }
-            if (photo.title.isNotBlank()) {
-                Text(
+                    }
+                    .fillMaxSize(0.5f),
+                strokeWidth = 8.dp,
+            )
+            if (hasError) Image(
+                modifier = Modifier
+                    .constrainAs(errorRef) {
+                        top.linkTo(parent.top)
+                        bottom.linkTo(parent.bottom)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    }
+                    .alpha(0.33f)
+                    .fillMaxSize(0.5f),
+                painter = Icons.Default.ImageNotSupported.painter(),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+            )
+            AsyncImage(
+                modifier = Modifier.constrainAs(imageRef) {
+                    width = Dimension.fillToConstraints
+                    height = Dimension.fillToConstraints
+                    top.linkTo(parent.top)
+                    bottom.linkTo(parent.bottom)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                },
+                model = photo.imageUrl,
+                contentDescription = "${photo.title} - ${photo.description}",
+                contentScale = ContentScale.Crop,
+                onSuccess = onLoadImageSuccess,
+                onError = onLoadImageError,
+                onLoading = onLoadImage,
+            )
+            if (onFullScreenClick != null && !isLoading && !hasError) {
+                PaIconButtonPrimary(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
-                    text = photo.title,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
+                        .constrainAs(fullScreenButttonRef) {
+                            height = Dimension.value(Dimensions.buttonMinSize)
+                            width = Dimension.value(Dimensions.buttonMinSize)
+                            bottom.linkTo(parent.bottom, margin = Dimensions.spaceSmall)
+                            end.linkTo(parent.end, margin = Dimensions.spaceSmall)
+                        }
+                        .wrapContentSize(),
+                    painter = Icons.Default.OpenInFull.painter(),
+                    onClick = onFullScreenClick,
+                    contentDescription = "Open in full",
                 )
             }
+        }
+        if (photo.title.isNotBlank()) {
             Text(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight(),
-                text = AnnotatedString.fromHtml(htmlString = photo.description),
-                style = MaterialTheme.typography.titleMedium,
+                text = photo.title,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
             )
-            AnimatedContent(targetState = photo.tags.size) {
-                when (it) {
-                    0 -> Text("The Author has not entered any tags")
-                    in 1..maxTags ->
-                        FlowRow(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(Dimensions.spaceSmall),
-                            verticalArrangement = Arrangement.spacedBy(Dimensions.spaceSmall),
-                        ) {
-                            photo.tags
-                                .forEach { tag ->
-                                    Text(
-                                        modifier = Modifier
-                                            .clip(MaterialTheme.shapes.extraLarge)
-                                            .background(MaterialTheme.colorScheme.surfaceContainer)
-                                            .padding(
-                                                vertical = Dimensions.spaceXSmall,
-                                                horizontal = Dimensions.spaceSmall,
-                                            ),
-                                        text = "#$tag",
-                                        style = MaterialTheme.typography.titleMedium,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis,
-                                    )
-                                }
-                        }
-
-                    else -> FlowRow(
+        }
+        Text(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
+            text = AnnotatedString.fromHtml(htmlString = photo.description),
+            style = MaterialTheme.typography.titleMedium,
+            maxLines = maxDescriptionLines,
+            overflow = TextOverflow.Ellipsis,
+        )
+        AnimatedContent(targetState = photo.tags.size) {
+            when (it) {
+                0 -> Text("The Author has not entered any tags")
+                in 1..maxTags ->
+                    FlowRow(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(Dimensions.spaceSmall),
                         verticalArrangement = Arrangement.spacedBy(Dimensions.spaceSmall),
                     ) {
                         photo.tags
-                            .take(maxTags)
                             .forEach { tag ->
                                 Text(
                                     modifier = Modifier
@@ -208,8 +224,31 @@ fun PhotoCard(
                                     overflow = TextOverflow.Ellipsis,
                                 )
                             }
-                        Text("and ${photo.tags.size - maxTags} more")
                     }
+
+                else -> FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(Dimensions.spaceSmall),
+                    verticalArrangement = Arrangement.spacedBy(Dimensions.spaceSmall),
+                ) {
+                    photo.tags
+                        .take(maxTags)
+                        .forEach { tag ->
+                            Text(
+                                modifier = Modifier
+                                    .clip(MaterialTheme.shapes.extraLarge)
+                                    .background(MaterialTheme.colorScheme.surfaceContainer)
+                                    .padding(
+                                        vertical = Dimensions.spaceXSmall,
+                                        horizontal = Dimensions.spaceSmall,
+                                    ),
+                                text = "#$tag",
+                                style = MaterialTheme.typography.titleMedium,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        }
+                    Text("and ${photo.tags.size - maxTags} more")
                 }
             }
         }
@@ -276,10 +315,10 @@ private fun PhotoCardErrorPreview() {
                     "Tag10"
                 ),
             ),
-            isLoading = false,
-            hasError = true,
             onClick = {},
             onFullScreenClick = {},
+            isLoading = false,
+            hasError = true,
         )
     }
 }
@@ -311,10 +350,9 @@ private fun PhotoCardFinishedPreview() {
                     "Tag10"
                 ),
             ),
-            isLoading = false,
-            hasError = false,
             onClick = {},
             onFullScreenClick = {},
+            isLoading = false,
             maxTags = 5,
         )
     }
@@ -336,10 +374,9 @@ private fun PhotoCardFinishedNoTagsPreview() {
                 authorId = "Author ID",
                 tags = listOf(),
             ),
-            isLoading = false,
-            hasError = false,
             onClick = {},
             onFullScreenClick = {},
+            isLoading = false,
         )
     }
 }

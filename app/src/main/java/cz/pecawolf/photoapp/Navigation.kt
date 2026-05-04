@@ -16,7 +16,6 @@ fun NavGraph(navController: NavController) {
     NavHost(navController as NavHostController, startDestination = Screens.Home) {
         composable(Screens.Home) {
             HomeRoute(
-                onNavigateToItemDetail = {},
                 onNavigateToItemFullScreen = {},
             )
         }

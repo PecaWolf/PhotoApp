@@ -33,6 +33,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
@@ -52,20 +55,21 @@ import cz.pecawolf.presentation.theme.PhotoAppTheme
 import org.koin.androidx.compose.koinViewModel
 
 private const val MAX_TAGS_DISPLAYED_PER_ITEM = 5
+private const val MAX_DESCRIPTION_LINES_DISPLAYED_PER_ITEM = 5
 
 @Composable
 fun HomeRoute(
-    onNavigateToItemDetail: (PhotoItem) -> Unit,
     onNavigateToItemFullScreen: (PhotoItem) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val viewModel: HomeViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsState()
+    var displayedDetail: PhotoItem? by remember { mutableStateOf(null) }
 
     LaunchedEffect(viewModel.effect) {
         viewModel.effect.collect {
             when (it) {
-                is HomeViewModel.Effect.NavigateToItemDetail -> onNavigateToItemDetail(it.photo)
+                is HomeViewModel.Effect.NavigateToItemDetail -> displayedDetail = it.photo
                 is HomeViewModel.Effect.NavigateToItemFullScreen -> onNavigateToItemFullScreen(it.photo)
             }
         }
@@ -75,6 +79,12 @@ fun HomeRoute(
         modifier = modifier,
         uiState = uiState,
         onEvent = viewModel::onEvent,
+    )
+
+    PhotoDetailBottomSheet(
+        item = displayedDetail,
+        onDismissRequest = { displayedDetail = null },
+        onFullScreenClick = { viewModel.onEvent(Event.PhotoFullScreenClick(it)) },
     )
 }
 
@@ -245,6 +255,7 @@ private fun PhotoList(
                 onClick = { onEvent(Event.PhotoClick(photo)) },
                 onFullScreenClick = { onEvent(Event.PhotoFullScreenClick(photo)) },
                 maxTags = MAX_TAGS_DISPLAYED_PER_ITEM,
+                maxDescriptionLines = MAX_DESCRIPTION_LINES_DISPLAYED_PER_ITEM,
             )
         }
     }
@@ -265,11 +276,12 @@ private fun PhotoGrid(
     ) {
         items(items = uiState.photos) { photo ->
             PhotoCard(
-                modifier = Modifier.fillMaxWidth(),
                 photo = photo,
                 onClick = { onEvent(Event.PhotoClick(photo)) },
                 onFullScreenClick = { onEvent(Event.PhotoFullScreenClick(photo)) },
+                modifier = Modifier.fillMaxWidth(),
                 maxTags = MAX_TAGS_DISPLAYED_PER_ITEM,
+                maxDescriptionLines = MAX_DESCRIPTION_LINES_DISPLAYED_PER_ITEM,
             )
         }
     }
