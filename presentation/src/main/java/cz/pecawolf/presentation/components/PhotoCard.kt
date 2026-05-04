@@ -32,6 +32,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.fromHtml
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -130,8 +131,8 @@ fun PhotoCard(
                             .constrainAs(fullScreenButttonRef) {
                                 height = Dimension.value(Dimensions.buttonMinSize)
                                 width = Dimension.value(Dimensions.buttonMinSize)
-                                bottom.linkTo(parent.bottom, margin = Dimensions.spaceMedium)
-                                end.linkTo(parent.end, margin = Dimensions.spaceMedium)
+                                bottom.linkTo(parent.bottom, margin = Dimensions.spaceSmall)
+                                end.linkTo(parent.end, margin = Dimensions.spaceSmall)
                             }
                             .wrapContentSize(),
                         painter = Icons.Default.OpenInFull.painter(),
@@ -168,9 +169,14 @@ fun PhotoCard(
                             modifier = Modifier
                                 .clip(MaterialTheme.shapes.extraLarge)
                                 .background(MaterialTheme.colorScheme.surfaceContainer)
-                                .padding(Dimensions.spaceXSmall),
+                                .padding(
+                                    vertical = Dimensions.spaceXSmall,
+                                    horizontal = Dimensions.spaceSmall,
+                                ),
                             text = "#$tag",
                             style = MaterialTheme.typography.titleMedium,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
                         )
                     }
                 }

@@ -33,17 +33,57 @@ class HomeViewModel(
             is Event.Refresh -> loadPhotos()
             is Event.PhotoClick -> handleItemClick(event.photo)
             is Event.PhotoFullScreenClick -> handleFullScreenClick(event.photo)
+            is Event.OnShowListChange -> handleShowListChange(event.isChecked)
+            is Event.OnSearchQueryChange -> handleSearchQueryChange(event.query)
+            is Event.OnDeleteTagClick -> handleDeleteTagClick(event.tag)
+            is Event.OnAllTagsChange -> handleAllTagsChange(event.isChecked)
         }
     }
 
     private fun handleItemClick(photo: PhotoItem) {
         Napier.d { "handleItemClick(): $photo" }
-
+        viewModelScope.launch {
+            _effect.send(Effect.NavigateToItemDetail(photo))
+        }
     }
 
     private fun handleFullScreenClick(photo: PhotoItem) {
         Napier.d { "handleFullScreenClick(): $photo" }
+        viewModelScope.launch {
+            _effect.send(Effect.NavigateToItemFullScreen(photo))
+        }
+    }
 
+    private fun handleShowListChange(isChecked: Boolean) {
+        Napier.d { "handleOnShowListChange(): $isChecked" }
+        _uiState.update {
+            it.copy(showList = isChecked)
+        }
+    }
+
+    private fun handleSearchQueryChange(query: String) {
+        Napier.d { "handleOnSearchQueryChange(): $query" }
+        _uiState.update {
+            it.copy(searchQuery = query)
+        }
+    }
+
+    private fun handleDeleteTagClick(tag: String) {
+        Napier.d { "handleDeleteTagClick(): $tag" }
+        _uiState.update {
+            it.copy(
+                searchQuery = it.searchTags.filter { it != tag }.joinToString(" "),
+            )
+        }
+    }
+
+    private fun handleAllTagsChange(isChecked: Boolean) {
+        Napier.d { "handleAllTagsToggle(): $isChecked" }
+        _uiState.update {
+            it.copy(
+                matchAllTags = isChecked,
+            )
+        }
     }
 
     private fun loadPhotos() {
@@ -88,14 +128,29 @@ class HomeViewModel(
         val subtitle: String? = null,
         val photos: List<PhotoItem> = emptyList(),
         val error: String? = null,
-    )
+        val showList: Boolean = true,
+        val searchQuery: String = "",
+        val searchExpanded: Boolean = false,
+        val matchAllTags: Boolean = true,
+    ) {
+        val searchTags: List<String>
+            get() = searchQuery
+                .split(" ")
+                .filter { it.isNotBlank() }
+    }
 
     sealed interface Event {
         data object Refresh : Event
         data class PhotoClick(val photo: PhotoItem) : Event
         data class PhotoFullScreenClick(val photo: PhotoItem) : Event
+        data class OnShowListChange(val isChecked: Boolean) : Event
+        data class OnSearchQueryChange(val query: String) : Event
+        data class OnDeleteTagClick(val tag: String) : Event
+        class OnAllTagsChange(val isChecked: Boolean) : Event
     }
 
     sealed interface Effect {
+        data class NavigateToItemDetail(val photo: PhotoItem) : Effect
+        data class NavigateToItemFullScreen(val photo: PhotoItem) : Effect
     }
 }
