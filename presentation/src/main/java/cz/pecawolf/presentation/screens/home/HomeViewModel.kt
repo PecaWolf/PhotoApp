@@ -72,7 +72,10 @@ class HomeViewModel(
         val newState = _uiState.updateAndGet {
             it.copy(searchQuery = query)
         }
-        handleSearchParametersChange(newState)
+        handleSearchParametersChange(
+            tags = newState.searchTags,
+            matchAllTags = newState.matchAllTags,
+        )
     }
 
     private fun handleDeleteTagClick(tag: String) {
@@ -82,7 +85,10 @@ class HomeViewModel(
                 searchQuery = it.searchTags.filter { it != tag }.joinToString(" "),
             )
         }
-        handleSearchParametersChange(newState)
+        handleSearchParametersChange(
+            tags = newState.searchTags,
+            matchAllTags = newState.matchAllTags,
+        )
     }
 
     private fun handleAllTagsChange(isChecked: Boolean) {
@@ -92,16 +98,24 @@ class HomeViewModel(
                 matchAllTags = isChecked,
             )
         }
-        handleSearchParametersChange(newState)
+        if (newState.searchTags.isNotEmpty()) {
+            handleSearchParametersChange(
+                tags = newState.searchTags,
+                matchAllTags = newState.matchAllTags,
+            )
+        }
     }
 
-    private fun handleSearchParametersChange(newState: UiState) {
+    private fun handleSearchParametersChange(
+        tags: List<String>,
+        matchAllTags: Boolean,
+    ) {
         debounceJob?.cancel()
         debounceJob = viewModelScope.launch {
             delay(1.seconds)
             loadPhotos(
-                tags = newState.searchTags,
-                matchAllTags = newState.matchAllTags,
+                tags = tags,
+                matchAllTags = matchAllTags,
             )
         }
     }
