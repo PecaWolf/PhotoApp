@@ -38,7 +38,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import cz.pecawolf.domain.model.PhotoItem
 import cz.pecawolf.presentation.components.Dimensions
 import cz.pecawolf.presentation.components.PaButtonSecondary
-import cz.pecawolf.presentation.components.PaIconButtonPrimary
 import cz.pecawolf.presentation.components.PaIconButtonTertiary
 import cz.pecawolf.presentation.components.PaSwitchButton
 import cz.pecawolf.presentation.components.PaTextField
@@ -49,6 +48,8 @@ import cz.pecawolf.presentation.screens.home.HomeViewModel.UiState
 import cz.pecawolf.presentation.screens.home.HomeViewModel.Event
 import cz.pecawolf.presentation.theme.PhotoAppTheme
 import org.koin.androidx.compose.koinViewModel
+
+private const val DISPLAY_MAX_TAG_COUNT = 5
 
 @Composable
 fun HomeRoute(
@@ -230,6 +231,7 @@ private fun PhotoList(
                 photo = photo,
                 onClick = { onEvent(Event.PhotoClick(photo)) },
                 onFullScreenClick = { onEvent(Event.PhotoFullScreenClick(photo)) },
+                maxTags = DISPLAY_MAX_TAG_COUNT,
             )
         }
     }
@@ -254,6 +256,7 @@ private fun PhotoGrid(
                 photo = photo,
                 onClick = { onEvent(Event.PhotoClick(photo)) },
                 onFullScreenClick = { onEvent(Event.PhotoFullScreenClick(photo)) },
+                maxTags = DISPLAY_MAX_TAG_COUNT,
             )
         }
     }

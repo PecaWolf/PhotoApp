@@ -1,6 +1,6 @@
 package cz.pecawolf.presentation.components
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -50,6 +50,7 @@ fun PhotoCard(
     modifier: Modifier = Modifier,
     isLoading: Boolean = true,
     hasError: Boolean = false,
+    maxTags: Int = Int.MAX_VALUE,
 ) {
     var _loading: Boolean by remember { mutableStateOf(isLoading) }
     var _error: Boolean by remember { mutableStateOf(hasError) }
@@ -158,26 +159,56 @@ fun PhotoCard(
                 text = AnnotatedString.fromHtml(htmlString = photo.description),
                 style = MaterialTheme.typography.titleMedium,
             )
-            AnimatedVisibility(visible = photo.tags.isNotEmpty()) {
-                FlowRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(Dimensions.spaceSmall),
-                    verticalArrangement = Arrangement.spacedBy(Dimensions.spaceSmall),
-                ) {
-                    photo.tags.forEach { tag ->
-                        Text(
-                            modifier = Modifier
-                                .clip(MaterialTheme.shapes.extraLarge)
-                                .background(MaterialTheme.colorScheme.surfaceContainer)
-                                .padding(
-                                    vertical = Dimensions.spaceXSmall,
-                                    horizontal = Dimensions.spaceSmall,
-                                ),
-                            text = "#$tag",
-                            style = MaterialTheme.typography.titleMedium,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
+            AnimatedContent(targetState = photo.tags.size) {
+                when (it) {
+                    0 -> Text("The Author has not entered any tags")
+                    in 1..maxTags ->
+                        FlowRow(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(Dimensions.spaceSmall),
+                            verticalArrangement = Arrangement.spacedBy(Dimensions.spaceSmall),
+                        ) {
+                            photo.tags
+                                .forEach { tag ->
+                                    Text(
+                                        modifier = Modifier
+                                            .clip(MaterialTheme.shapes.extraLarge)
+                                            .background(MaterialTheme.colorScheme.surfaceContainer)
+                                            .padding(
+                                                vertical = Dimensions.spaceXSmall,
+                                                horizontal = Dimensions.spaceSmall,
+                                            ),
+                                        text = "#$tag",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                }
+                        }
+
+                    else -> FlowRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(Dimensions.spaceSmall),
+                        verticalArrangement = Arrangement.spacedBy(Dimensions.spaceSmall),
+                    ) {
+                        photo.tags
+                            .take(maxTags)
+                            .forEach { tag ->
+                                Text(
+                                    modifier = Modifier
+                                        .clip(MaterialTheme.shapes.extraLarge)
+                                        .background(MaterialTheme.colorScheme.surfaceContainer)
+                                        .padding(
+                                            vertical = Dimensions.spaceXSmall,
+                                            horizontal = Dimensions.spaceSmall,
+                                        ),
+                                    text = "#$tag",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                            }
+                        Text("and ${photo.tags.size - maxTags} more")
                     }
                 }
             }
@@ -279,6 +310,31 @@ private fun PhotoCardFinishedPreview() {
                     "Tag9",
                     "Tag10"
                 ),
+            ),
+            isLoading = false,
+            hasError = false,
+            onClick = {},
+            onFullScreenClick = {},
+            maxTags = 5,
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun PhotoCardFinishedNoTagsPreview() {
+    PhotoAppTheme {
+        PhotoCard(
+            photo = PhotoItem(
+                title = "Title",
+                link = "Link",
+                imageUrl = "https://i.redd.it/a-random-stray-kitten-appeared-at-my-house-a-few-months-ago-v0-5l92v1v1afxc1.jpg?width=2252&format=pjpg&auto=webp&s=2d839d26c8f99ded0a8f39faf0dc249d263d6ba1",
+                dateTaken = "Date Taken",
+                description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                published = "Published",
+                author = "Author",
+                authorId = "Author ID",
+                tags = listOf(),
             ),
             isLoading = false,
             hasError = false,
