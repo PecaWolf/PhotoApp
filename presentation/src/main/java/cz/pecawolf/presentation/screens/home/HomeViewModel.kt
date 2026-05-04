@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cz.pecawolf.domain.model.PhotoFeed
 import cz.pecawolf.domain.model.PhotoItem
+import cz.pecawolf.domain.usecase.EncodeUrlUseCase
 import cz.pecawolf.domain.usecase.FetchPhotoFeedUseCase
 import cz.pecawolf.presentation.formatDateTimeBySystemLocale
 import io.github.aakira.napier.Napier
@@ -16,12 +17,11 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.launch
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 import kotlin.time.Duration.Companion.seconds
 
 class HomeViewModel(
     private val fetchPhotoFeed: FetchPhotoFeedUseCase,
+    private val encodeUrl: EncodeUrlUseCase,
 ) : ViewModel() {
 
     private val _effect = Channel<Effect>()
@@ -61,8 +61,7 @@ class HomeViewModel(
     private fun handleFullScreenClick(photo: PhotoItem) {
         Napier.d { "handleFullScreenClick(): ${photo.imageUrl}" }
         viewModelScope.launch {
-            val encodedUrl = URLEncoder.encode(photo.imageUrl, StandardCharsets.UTF_8.toString())
-            _effect.send(Effect.NavigateToItemFullScreen(encodedUrl))
+            _effect.send(Effect.NavigateToItemFullScreen(imageUrl = encodeUrl(photo.imageUrl)))
         }
     }
 
