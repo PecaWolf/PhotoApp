@@ -42,7 +42,7 @@ import androidx.constraintlayout.compose.Dimension
 import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter
 import cz.pecawolf.presentation.model.PhotoModel
-import cz.pecawolf.presentation.R
+import cz.pecawolf.ui.R
 import io.github.aakira.napier.Napier
 
 @Composable

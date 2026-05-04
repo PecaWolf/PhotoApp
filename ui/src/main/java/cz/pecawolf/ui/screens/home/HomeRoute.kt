@@ -50,7 +50,7 @@ import cz.pecawolf.ui.components.PaTopAppBar
 import cz.pecawolf.ui.components.PhotoCard
 import cz.pecawolf.ui.components.painter
 import cz.pecawolf.ui.components.string
-import cz.pecawolf.presentation.R
+import cz.pecawolf.ui.R
 import cz.pecawolf.presentation.viewmodel.HomeViewModel.UiState
 import cz.pecawolf.presentation.viewmodel.HomeViewModel.Event
 import cz.pecawolf.presentation.viewmodel.HomeViewModel.Effect

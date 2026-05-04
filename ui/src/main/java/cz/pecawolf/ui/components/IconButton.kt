@@ -24,8 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.tooling.preview.Preview
-import cz.pecawolf.presentation.R
-import cz.pecawolf.ui.theme.PhotoAppTheme
+import cz.pecawolf.ui.R
 
 @Composable
 fun PaIconButtonPrimary(

@@ -25,7 +25,7 @@ import cz.pecawolf.ui.components.PaIconButtonPrimary
 import cz.pecawolf.ui.components.ZoomableImage
 import cz.pecawolf.ui.components.painter
 import cz.pecawolf.ui.components.string
-import cz.pecawolf.presentation.R
+import cz.pecawolf.ui.R
 import cz.pecawolf.presentation.viewmodel.FullScreenImageViewModel
 import cz.pecawolf.presentation.viewmodel.FullScreenImageViewModel.UiState
 import cz.pecawolf.presentation.viewmodel.FullScreenImageViewModel.Effect
