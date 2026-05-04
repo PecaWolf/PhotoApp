@@ -4,7 +4,9 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.aakira.napier.Napier
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -38,6 +40,12 @@ class FullScreenImageViewModel(
             )
 
             is Event.ResetImage -> handleResetImage()
+            is Event.ImageLoaded -> handleImageLoaded(
+                screenWidth = event.screenWidth,
+                screenHeight = event.screenHeight,
+                imageWidth = event.imageWidth,
+                imageHeight = event.imageHeight,
+            )
         }
     }
 
@@ -64,8 +72,33 @@ class FullScreenImageViewModel(
             it.copy(
                 panX = 0f,
                 panY = 0f,
-                zoom = ZOOM_DEFAULT,
+                zoom = it.baselineZoom,
                 rotation = 0f,
+                resetKey = it.resetKey.inc().mod(8),
+            )
+        }
+    }
+
+    private fun handleImageLoaded(
+        screenWidth: Int,
+        screenHeight: Int,
+        imageWidth: Int,
+        imageHeight: Int,
+    ) {
+        Napier.d { "handleImageLoaded(): $screenWidth x $screenHeight, $imageWidth x $imageHeight" }
+
+        val baselineZoom = minOf(
+            screenWidth.toFloat() / imageWidth.toFloat(),
+            screenHeight.toFloat() / imageHeight.toFloat()
+        )
+
+        _uiState.update {
+            it.copy(
+                baselineZoom = baselineZoom,
+                zoom = baselineZoom,
+                zoomMin = baselineZoom / ZOOM_MIN,
+                zoomMax = baselineZoom / ZOOM_MAX,
+                resetKey = it.resetKey.inc().mod(8),
             )
         }
     }
@@ -74,13 +107,15 @@ class FullScreenImageViewModel(
         val imageUrl: String? = null,
         val panX: Float = 0f,
         val panY: Float = 0f,
+        val baselineZoom: Float = ZOOM_DEFAULT,
         val zoom: Float = ZOOM_DEFAULT,
         val zoomMin: Float = ZOOM_MIN,
         val zoomMax: Float = ZOOM_MAX,
         val rotation: Float = 0f,
+        val resetKey: Int = 0,
     ) {
         val isResetEnabled: Boolean
-            get() = panX != 0f || panY != 0f || zoom != ZOOM_DEFAULT || rotation != 0f
+            get() = panX != 0f || panY != 0f || zoom != baselineZoom || rotation != 0f
     }
 
     sealed interface Event {
@@ -90,6 +125,13 @@ class FullScreenImageViewModel(
             val panY: Float,
             val zoom: Float,
             val rotation: Float,
+        ) : Event
+
+        data class ImageLoaded(
+            val screenWidth: Int,
+            val screenHeight: Int,
+            val imageWidth: Int,
+            val imageHeight: Int,
         ) : Event
 
         data object ResetImage : Event

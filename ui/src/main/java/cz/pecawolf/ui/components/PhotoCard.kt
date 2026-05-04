@@ -3,6 +3,7 @@ package cz.pecawolf.ui.components
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -149,14 +150,19 @@ fun PhotoContent(
                 contentScale = ContentScale.Crop,
             )
             AsyncImage(
-                modifier = Modifier.constrainAs(imageRef) {
-                    width = Dimension.fillToConstraints
-                    height = Dimension.fillToConstraints
-                    top.linkTo(parent.top)
-                    bottom.linkTo(parent.bottom)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                },
+                modifier = Modifier
+                    .constrainAs(imageRef) {
+                        width = Dimension.fillToConstraints
+                        height = Dimension.fillToConstraints
+                        top.linkTo(parent.top)
+                        bottom.linkTo(parent.bottom)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    }
+                    .clickable(
+                        enabled = onFullScreenClick != null,
+                        onClick = { onFullScreenClick?.invoke() },
+                    ),
                 model = photo.imageUrl,
                 contentDescription = "${photo.title} - ${photo.description}",
                 contentScale = ContentScale.Crop,

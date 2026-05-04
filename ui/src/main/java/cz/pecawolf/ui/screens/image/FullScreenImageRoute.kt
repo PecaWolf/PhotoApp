@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -88,14 +89,15 @@ private fun FullScreenImageScreen(
                     )
 
                     else -> ZoomableImage(
-                        modifier = Modifier.fillMaxSize(),
                         imageUrl = uiState.imageUrl.orEmpty(),
+                        modifier = Modifier.fillMaxSize(),
                         defaultPan = Offset(
                             x = uiState.panX,
                             y = uiState.panY,
                         ),
                         defaultZoom = uiState.zoom,
                         defaultRotation = uiState.rotation,
+                        resetKey = uiState.resetKey,
                         onStateChange = { pan, zoom, rotation ->
                             onEvent(
                                 Event.ImageStateChange(
@@ -106,6 +108,16 @@ private fun FullScreenImageScreen(
                                 )
                             )
                         },
+                        onImageLoaded = { screenWidth, screenHeight, imageWidth, imageHeight ->
+                            onEvent(
+                                Event.ImageLoaded(
+                                    screenWidth = screenWidth,
+                                    screenHeight = screenHeight,
+                                    imageWidth = imageWidth,
+                                    imageHeight = imageHeight,
+                                )
+                            )
+                        }
                     )
                 }
             }
@@ -126,6 +138,8 @@ private fun FullScreenImageScreen(
                     painter = Icons.Default.Refresh.painter(),
                     onClick = { onEvent(Event.ResetImage) },
                     contentDescription = R.string.fullscreen_reset_photo_button_content_description.string(),
+                    backgroundColor = Color.Black.copy(alpha = 0.5f),
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
             }
         }
