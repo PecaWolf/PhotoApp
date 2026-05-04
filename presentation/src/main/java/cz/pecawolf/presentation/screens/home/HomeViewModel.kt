@@ -98,7 +98,7 @@ class HomeViewModel(
                 matchAllTags = isChecked,
             )
         }
-        if (newState.searchTags.isNotEmpty()) {
+        if (newState.searchTags.size > 1) {
             handleSearchParametersChange(
                 tags = newState.searchTags,
                 matchAllTags = newState.matchAllTags,
@@ -110,9 +110,10 @@ class HomeViewModel(
         tags: List<String>,
         matchAllTags: Boolean,
     ) {
+        Napier.v { "handleSearchParametersChange(): $tags, $matchAllTags" }
         debounceJob?.cancel()
         debounceJob = viewModelScope.launch {
-            delay(1.seconds)
+            delay(0.5.seconds)
             loadPhotos(
                 tags = tags,
                 matchAllTags = matchAllTags,
@@ -124,6 +125,7 @@ class HomeViewModel(
         tags: List<String> = emptyList(),
         matchAllTags: Boolean = true,
     ) {
+        Napier.v { "loadPhotos(): $tags, $matchAllTags" }
         _uiState.update {
             it.copy(loading = true)
         }

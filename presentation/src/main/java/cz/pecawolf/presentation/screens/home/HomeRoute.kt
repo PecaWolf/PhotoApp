@@ -1,13 +1,16 @@
 package cz.pecawolf.presentation.screens.home
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.background
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -32,7 +35,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import cz.pecawolf.domain.model.PhotoItem
@@ -49,7 +51,7 @@ import cz.pecawolf.presentation.screens.home.HomeViewModel.Event
 import cz.pecawolf.presentation.theme.PhotoAppTheme
 import org.koin.androidx.compose.koinViewModel
 
-private const val DISPLAY_MAX_TAG_COUNT = 5
+private const val MAX_TAGS_DISPLAYED_PER_ITEM = 5
 
 @Composable
 fun HomeRoute(
@@ -116,20 +118,31 @@ private fun HomeScreen(
                 isRefreshing = uiState.loading,
                 onRefresh = { onEvent(Event.Refresh) },
             ) {
-                if (uiState.showList) {
-                    PhotoList(
-                        modifier = Modifier
-                            .fillMaxSize(),
-                        uiState = uiState,
-                        onEvent = onEvent,
-                    )
-                } else {
-                    PhotoGrid(
-                        modifier = Modifier
-                            .fillMaxSize(),
-                        uiState = uiState,
-                        onEvent = onEvent,
-                    )
+                AnimatedContent(
+                    targetState = uiState.showList,
+                    transitionSpec = {
+                        if (uiState.showList) {
+                            slideInHorizontally { it } + fadeIn() togetherWith slideOutHorizontally { -it } + fadeOut()
+                        } else {
+                            slideInHorizontally { -it } + fadeIn() togetherWith slideOutHorizontally { it } + fadeOut()
+                        }
+                    }
+                ) {
+                    if (it) {
+                        PhotoList(
+                            modifier = Modifier
+                                .fillMaxSize(),
+                            uiState = uiState,
+                            onEvent = onEvent,
+                        )
+                    } else {
+                        PhotoGrid(
+                            modifier = Modifier
+                                .fillMaxSize(),
+                            uiState = uiState,
+                            onEvent = onEvent,
+                        )
+                    }
                 }
             }
         }
@@ -231,7 +244,7 @@ private fun PhotoList(
                 photo = photo,
                 onClick = { onEvent(Event.PhotoClick(photo)) },
                 onFullScreenClick = { onEvent(Event.PhotoFullScreenClick(photo)) },
-                maxTags = DISPLAY_MAX_TAG_COUNT,
+                maxTags = MAX_TAGS_DISPLAYED_PER_ITEM,
             )
         }
     }
@@ -256,7 +269,7 @@ private fun PhotoGrid(
                 photo = photo,
                 onClick = { onEvent(Event.PhotoClick(photo)) },
                 onFullScreenClick = { onEvent(Event.PhotoFullScreenClick(photo)) },
-                maxTags = DISPLAY_MAX_TAG_COUNT,
+                maxTags = MAX_TAGS_DISPLAYED_PER_ITEM,
             )
         }
     }
